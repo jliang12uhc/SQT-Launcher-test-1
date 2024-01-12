@@ -37,15 +37,16 @@ namespace SQT_Launcher
             // Close the INSTALLER
 
             // If the INSTALLER is run standalone:
-                // Check for SQT-Launcher updates and replace accordingly.
-
-
+                // Check for SQT-Launcher updates and replace accordingly
 
             ExcelLauncher launcher = new ExcelLauncher();
-            string sqtUrl = @"\\nas01773pn\UMR Pricing\a UMR Model Team\UMR\Sales Quote Tool\Dev\Sales Quote Tool - Dev 31.xlsm";
+            //string sqtUrl = @"\\nas01773pn\UMR Pricing\a UMR Model Team\UMR\Sales Quote Tool\Dev\Sales Quote Tool - Dev 31.xlsm";
             //string sqtUrl = launcher.LookupSqtUrl();
             //string localTempPath = Path.GetTempFileName();
-            string localPath = "C:\\Users\\jliang12\\Documents\\2023\\SQT.xlsm";
+            
+            // replace with get local path
+            string localPath = @"C:\Users\jliang12\Documents\2023\SQT.xlsm";
+            string sqtUrl = launcher.LookupSqtUrl();
             //launcher.OpenSqt(sqtUrl, localTempPath);
 
             Application excel = new Application();
@@ -70,7 +71,6 @@ namespace SQT_Launcher
 
         static void ThisWorkbook_BeforeSave(bool SaveAsUI, ref bool Cancel)
         {
-            
             Cancel = true;
         }
     }
