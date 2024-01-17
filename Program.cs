@@ -8,8 +8,8 @@ using System.Security.Cryptography;
 using System.Diagnostics;
 using System.Net;
 using System.IO;
-using Microsoft.Office.Interop.Excel;
 using System.Threading;
+using Microsoft.Office.Interop.Excel;
 
 namespace SQT_Launcher
 {
@@ -17,84 +17,51 @@ namespace SQT_Launcher
     {
         //static async Task Main(string[] args)
         const int versionNumber = 1;
-        const string sqtFilename = "SQT.xlsm";
-
+        
         static void Main(string[] args)
         {
-            // decide on a common directory eg. (C:\Users\[MSID]\Documents\something...)
-
-            // THE INITIAL INSTALL
-            // Running Installer 1.0 will result in a copy of itself (from the shared drive) and SQT-Launcher to be put in a common directory.
-
-            // Any subsequent runs of SQT-Launcher should do the following:
-
-            // UPON RUNNING SQT-Launcher:
-            // This program should first be installed with an INSTALLER (another program which also acts as the updater). 
-            // When this program starts, check against SQL if an updated version of the INSTALLER exists.
-            // If so, update the INSTALLER.
-            // Then, launch the INSTALLER, passing the name, PROCESS ID, and filepath (System.Reflection.Assembly.GetEntryAssembly().Location;) of this program (SQT Launcher) to it.
-            // The INSTALLER should also make a read to SQL for an updated version of SQT LAUNCHER.
-            // If there is, close THIS process (SQT LAUNCHER) and update it from the INSTALLER
-            // Then relaunch the new SQT LAUNCHER with the same filepath
-            // Close the INSTALLER
-
-            // If the INSTALLER is run standalone:
-            // Check for SQT-Launcher updates and replace accordingly
-
             string user = Environment.UserName;
-            string installerFilepath = @"C:\Users\" + user + @"\Documents\2023\UMR (local)\Sales Tool\Installer\installer dev 1.vbs"; //.Replace(@"\\", @"\");
-            if (!File.Exists(installerFilepath))
-            {
-                Console.WriteLine("Fatal error: installer not found. Press Enter to exit...");
-                Console.ReadLine();
-                Environment.Exit(-1);
-            }
-
-            //string processArgs = @"cscript " + @"//B " + @" //Nologo " + installerFilepath;
-            //string processArgs = @"cscript //NoLogo " + @"""" + @"C:\Users\jliang12\Documents\2023\UMR (local)\Sales Tool\Installer\installer dev 1.vbs" + @"""";
-            //System.Diagnostics.Process.Start(@processArgs);
 
             Process p = new Process();
             p.StartInfo.Arguments = @"""C:\Users\jliang12\Documents\2023\UMR (local)\Sales Tool\Installer\installer dev 1.vbs""";
             p.StartInfo.FileName = @"C:\Windows\System32\cscript.exe";
+            p.StartInfo.Arguments = versionNumber.ToString();   
+
             p.Start();
             p.WaitForExit();
             p.Close();
-
-            /*
-            Process installerProcess = new Process();
-            installerProcess.StartInfo.FileName = @installerFilepath;
-            installerProcess.Start();
-            installerProcess.WaitForExit();
-            installerProcess.Close();
-            */
 
             ExcelLauncher launcher = new ExcelLauncher();
 
             string localDir = @"C:\Users\" + user + @"\Documents\2023\SQT\";
             Directory.CreateDirectory(localDir);
 
-            string localPath = localDir + sqtFilename;
+            string sqtFilename = launcher.LookupSqtFilename();
+            string localPathSqt = localDir + sqtFilename;
             string sqtUrl = launcher.LookupSqtUrl();
+
+            string proposalTemplateFilename = launcher.LookupProposalTemplateFilename();
+            string localPathProposalTemplate = localDir + proposalTemplateFilename;
+            string proposalTemplateUrl = launcher.LookupProposalTemplateUrl();
 
             Application excel = new Application();
 
             using (WebClient wc = new WebClient())
             {
-                wc.DownloadFile(sqtUrl, localPath);
+                wc.DownloadFile(sqtUrl, localPathSqt);
             }
 
-            Workbook sqt = excel.Workbooks.Open(localPath);
+            Workbook sqt = excel.Workbooks.Open(localPathSqt);
             sqt.BeforeSave += new WorkbookEvents_BeforeSaveEventHandler(ThisWorkbook_BeforeSave);
             excel.DisplayAlerts = false;
             excel.Visible = true;
 
-            FileInfo f = new FileInfo(localPath);
+            FileInfo f = new FileInfo(localPathSqt);
             while (IsFileLocked(f))
             {
                 Thread.Sleep(1000);
             }
-            DeleteFile(localPath);
+            DeleteFile(localPathSqt);
         }
 
         static void ThisWorkbook_BeforeSave(bool SaveAsUI, ref bool Cancel)
@@ -155,7 +122,10 @@ namespace SQT_Launcher
         const string InitialSchema = "SALES";
         const string InitialTable = "SQT_PARAMETERS";
         const string LookupField_SqtUrl = "SQT_URL";
+        const string LookupField_SqtFilename = "SQT_FILENAME";
         const string LookupField_SqtVersion = "SQT_VERSION";
+        const string LookupField_ProposalTemplateUrl = "PROPOSAL_TEMPLATE_URL";
+        const string LookupField_ProposalTemplateFilename = "PROPOSAL_TEMPLATE_FILENAME";
         const int ConnectTimeout = 300;
 
         public ExcelLauncher() {
@@ -186,18 +156,28 @@ namespace SQT_Launcher
                 wc.DownloadFile(uri, fName);
             }
         }
-    public string LookupSqtVersion() 
+        public string LookupSqtVersion() 
         {
             // Look up from sql
-            string retrievedString = RetrieveStringFromSql(LookupField_SqtVersion);
-            return retrievedString; 
+            return RetrieveStringFromSql(LookupField_SqtVersion); 
         }
         public string LookupSqtUrl()
         {
-            string retrievedString = RetrieveStringFromSql(LookupField_SqtUrl); //null;
-            //SqtUrl = await RetrieveStringFromSql(LookupField_SqtUrl);
-            return retrievedString;
-        }        
+            return RetrieveStringFromSql(LookupField_SqtUrl);
+        }
+        public string LookupSqtFilename()
+        {
+            return RetrieveStringFromSql(LookupField_SqtFilename);
+        }
+        public string LookupProposalTemplateUrl()
+        {
+            return RetrieveStringFromSql(LookupField_ProposalTemplateUrl);
+        }
+        public string LookupProposalTemplateFilename()
+        {
+            return RetrieveStringFromSql(LookupField_ProposalTemplateUrl);
+        }
+
         private string RetrieveStringFromSql(string field)
         {
             string retrievedString = null;
