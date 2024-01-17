@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Net;
 using System.IO;
 using Microsoft.Office.Interop.Excel;
+using System.Threading;
 
 namespace SQT_Launcher
 {
@@ -16,6 +17,7 @@ namespace SQT_Launcher
     {
         //static async Task Main(string[] args)
         const int versionNumber = 1;
+        const string sqtFilename = "SQT.xlsm";
 
         static void Main(string[] args)
         {
@@ -29,28 +31,45 @@ namespace SQT_Launcher
             // UPON RUNNING SQT-Launcher:
             // This program should first be installed with an INSTALLER (another program which also acts as the updater). 
             // When this program starts, check against SQL if an updated version of the INSTALLER exists.
-                // If so, update the INSTALLER.
+            // If so, update the INSTALLER.
             // Then, launch the INSTALLER, passing the name, PROCESS ID, and filepath (System.Reflection.Assembly.GetEntryAssembly().Location;) of this program (SQT Launcher) to it.
             // The INSTALLER should also make a read to SQL for an updated version of SQT LAUNCHER.
-                // If there is, close THIS process (SQT LAUNCHER) and update it from the INSTALLER
-                // Then relaunch the new SQT LAUNCHER with the same filepath
+            // If there is, close THIS process (SQT LAUNCHER) and update it from the INSTALLER
+            // Then relaunch the new SQT LAUNCHER with the same filepath
             // Close the INSTALLER
 
             // If the INSTALLER is run standalone:
-                // Check for SQT-Launcher updates and replace accordingly
+            // Check for SQT-Launcher updates and replace accordingly
+
+            string user = Environment.UserName;
+            string installerFilepath = @"C:\Users\" + user + @"\Documents\2023\UMR (local)\Sales Tool\Installer\installer dev 1.vbs"; //.Replace(@"\\", @"\");
+            if (File.Exists(installerFilepath))
+            {
+                Console.WriteLine(installerFilepath + " does exist");
+            }
+            else
+            {
+                Console.WriteLine("doesn't exist");
+            }
+
+            //string processArgs = @"cscript " + @"//B " + @" //Nologo " + installerFilepath;
+            //System.Diagnostics.Process.Start(@processArgs);
+
+            Process installerProcess = new Process();
+            installerProcess.StartInfo.FileName = @installerFilepath;
+            installerProcess.Start();
+            installerProcess.WaitForExit();
+            installerProcess.Close();
 
             ExcelLauncher launcher = new ExcelLauncher();
-            //string sqtUrl = @"\\nas01773pn\UMR Pricing\a UMR Model Team\UMR\Sales Quote Tool\Dev\Sales Quote Tool - Dev 31.xlsm";
-            //string sqtUrl = launcher.LookupSqtUrl();
-            //string localTempPath = Path.GetTempFileName();
-            
-            // replace with get local path
-            string localPath = @"C:\Users\jliang12\Documents\2023\SQT.xlsm";
+
+            string localDir = @"C:\Users\" + user + @"\Documents\2023\SQT\";
+            Directory.CreateDirectory(localDir);
+
+            string localPath = localDir + sqtFilename;
             string sqtUrl = launcher.LookupSqtUrl();
-            //launcher.OpenSqt(sqtUrl, localTempPath);
 
             Application excel = new Application();
-            //Workbook sqt = excel.Workbooks.Open(localTempPath);
 
             using (WebClient wc = new WebClient())
             {
@@ -62,17 +81,63 @@ namespace SQT_Launcher
             excel.DisplayAlerts = false;
             excel.Visible = true;
 
-            //FileInfo fi = new FileInfo(localTempPath);
-            //System.Diagnostics.Process.Start(localTempPath);
-
-            Console.WriteLine("Done");
-            Console.ReadLine();
+            FileInfo f = new FileInfo(localPath);
+            while (IsFileLocked(f))
+            {
+                Thread.Sleep(1000);
+            }
+            DeleteFile(localPath);
         }
 
         static void ThisWorkbook_BeforeSave(bool SaveAsUI, ref bool Cancel)
         {
             Cancel = true;
         }
+        static void DeleteFile(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                    //Console.WriteLine("Deleted " + path);
+                }
+                else
+                {
+                    //Console.WriteLine(path + " does not exist.");
+                }
+            }
+            catch (Exception e)
+            {
+                //Console.WriteLine(e);
+            }
+        }
+        static bool IsFileLocked(FileInfo file)
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
+        }
+
     }
 
     internal class ExcelLauncher
