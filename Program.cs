@@ -43,23 +43,31 @@ namespace SQT_Launcher
 
             string user = Environment.UserName;
             string installerFilepath = @"C:\Users\" + user + @"\Documents\2023\UMR (local)\Sales Tool\Installer\installer dev 1.vbs"; //.Replace(@"\\", @"\");
-            if (File.Exists(installerFilepath))
+            if (!File.Exists(installerFilepath))
             {
-                Console.WriteLine(installerFilepath + " does exist");
-            }
-            else
-            {
-                Console.WriteLine("doesn't exist");
+                Console.WriteLine("Fatal error: installer not found. Press Enter to exit...");
+                Console.ReadLine();
+                Environment.Exit(-1);
             }
 
             //string processArgs = @"cscript " + @"//B " + @" //Nologo " + installerFilepath;
+            //string processArgs = @"cscript //NoLogo " + @"""" + @"C:\Users\jliang12\Documents\2023\UMR (local)\Sales Tool\Installer\installer dev 1.vbs" + @"""";
             //System.Diagnostics.Process.Start(@processArgs);
 
+            Process p = new Process();
+            p.StartInfo.Arguments = @"""C:\Users\jliang12\Documents\2023\UMR (local)\Sales Tool\Installer\installer dev 1.vbs""";
+            p.StartInfo.FileName = @"C:\Windows\System32\cscript.exe";
+            p.Start();
+            p.WaitForExit();
+            p.Close();
+
+            /*
             Process installerProcess = new Process();
             installerProcess.StartInfo.FileName = @installerFilepath;
             installerProcess.Start();
             installerProcess.WaitForExit();
             installerProcess.Close();
+            */
 
             ExcelLauncher launcher = new ExcelLauncher();
 
