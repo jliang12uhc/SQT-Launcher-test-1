@@ -36,13 +36,13 @@ namespace SQT_Launcher
 
             //Console.WriteLine("Welcome to the Sales Quote Tool (SQT). Please wait while the file is loaded.\n");
 
-            ProgressUpdate("Updating local SQT directory...", 1);
+            //ProgressUpdate("Updating local SQT directory...", 1);
             ExcelLauncher launcher = new ExcelLauncher();
             string localDir = @"C:\Users\" + user + @"\Documents\SQT\";
             Directory.CreateDirectory(localDir);
             //Console.WriteLine(" Done.");
 
-            ProgressUpdate("Retrieving SQT network parameters...", 1);
+            //ProgressUpdate("Retrieving SQT network parameters...", 1);
             string sqtFilename = launcher.LookupSqtFilename();
             string localPathSqt = localDir + sqtFilename;
             string sqtUrl = launcher.LookupSqtUrl();
@@ -52,7 +52,7 @@ namespace SQT_Launcher
             string proposalTemplateUrl = launcher.LookupProposalTemplateUrl();
             //Console.WriteLine(" Done.");
 
-            ProgressUpdate("Retrieving the latest version of SQT...", 1);
+            //ProgressUpdate("Retrieving the latest version of SQT...", 1);
             Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
 
             using (WebClient wc = new WebClient())
@@ -62,7 +62,7 @@ namespace SQT_Launcher
             }
             //Console.WriteLine(" Done.");
 
-            ProgressUpdate("Launching Excel...", 1);
+            //ProgressUpdate("Launching Excel...", 1);
             Workbook sqt = excel.Workbooks.Open(localPathSqt);
             sqt.BeforeSave += new WorkbookEvents_BeforeSaveEventHandler(ThisWorkbook_BeforeSave);
             excel.DisplayAlerts = false;
@@ -78,7 +78,7 @@ namespace SQT_Launcher
             {
                 Thread.Sleep(1000);
             }
-            //ProgressUpdate("Cleaning up local files...", 1);
+            ////ProgressUpdate("Cleaning up local files...", 1);
             //DeleteFile(localPathSqt);
 
             //string fullPath = Process.GetCurrentProcess().MainModule.FileName;
