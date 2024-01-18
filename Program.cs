@@ -80,6 +80,7 @@ namespace SQT_Launcher
             }
             ////ProgressUpdate("Cleaning up local files...", 1);
             //DeleteFile(localPathSqt);
+            //DeleteFile(localPathProposalTemplate);
 
             //string fullPath = Process.GetCurrentProcess().MainModule.FileName;
             string deskDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
