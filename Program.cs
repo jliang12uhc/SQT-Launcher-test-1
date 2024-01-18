@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Net;
 using System.IO;
 using System.Threading;
+using System.Windows.Forms;
 using Microsoft.Office.Interop.Excel;
 
 namespace SQT_Launcher
@@ -16,6 +17,7 @@ namespace SQT_Launcher
     internal class Program
     {
         const int versionNumber = 1;
+        const string shortcutName = "Sales Quote Tool";
 
         static void Main(string[] args)
         {
@@ -32,13 +34,13 @@ namespace SQT_Launcher
             p.Close();
             */
 
-            Console.WriteLine("Welcome to the Sales Quote Tool (SQT). Please wait while the file is loaded.\n");
+            //Console.WriteLine("Welcome to the Sales Quote Tool (SQT). Please wait while the file is loaded.\n");
 
             ProgressUpdate("Updating local SQT directory...", 1);
             ExcelLauncher launcher = new ExcelLauncher();
-            string localDir = @"C:\Users\" + user + @"\Documents\2023\SQT\";
+            string localDir = @"C:\Users\" + user + @"\Documents\SQT\";
             Directory.CreateDirectory(localDir);
-            Console.WriteLine(" Done.");
+            //Console.WriteLine(" Done.");
 
             ProgressUpdate("Retrieving SQT network parameters...", 1);
             string sqtFilename = launcher.LookupSqtFilename();
@@ -48,37 +50,46 @@ namespace SQT_Launcher
             string proposalTemplateFilename = launcher.LookupProposalTemplateFilename();
             string localPathProposalTemplate = localDir + proposalTemplateFilename;
             string proposalTemplateUrl = launcher.LookupProposalTemplateUrl();
-            Console.WriteLine(" Done.");
+            //Console.WriteLine(" Done.");
 
             ProgressUpdate("Retrieving the latest version of SQT...", 1);
-            Application excel = new Application();
+            Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
 
             using (WebClient wc = new WebClient())
             {
                 wc.DownloadFile(sqtUrl, localPathSqt);
                 wc.DownloadFile(proposalTemplateUrl, localPathProposalTemplate);
             }
-            Console.WriteLine(" Done.");
+            //Console.WriteLine(" Done.");
 
             ProgressUpdate("Launching Excel...", 1);
             Workbook sqt = excel.Workbooks.Open(localPathSqt);
             sqt.BeforeSave += new WorkbookEvents_BeforeSaveEventHandler(ThisWorkbook_BeforeSave);
             excel.DisplayAlerts = false;
             excel.Visible = true;
-            Console.WriteLine(" Done.");
+            //Console.WriteLine(" Done.");
 
-            Console.WriteLine();
-            Console.WriteLine("SQT is currently in use by " + user + ". Please do not close this window.");
-            Console.WriteLine();
+            //Console.WriteLine();
+            //Console.WriteLine("SQT is currently in use by " + user + ". Please do not close this window.");
+            //Console.WriteLine();
 
             FileInfo f = new FileInfo(localPathSqt);
             while (IsFileLocked(f))
             {
                 Thread.Sleep(1000);
             }
-            ProgressUpdate("Cleaning up local files...", 1);
-            DeleteFile(localPathSqt);
-            Console.WriteLine(" Done.");
+            //ProgressUpdate("Cleaning up local files...", 1);
+            //DeleteFile(localPathSqt);
+
+            //string fullPath = Process.GetCurrentProcess().MainModule.FileName;
+            string deskDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            bool shortcutExists = File.Exists(deskDir + shortcutName);
+            AddDesktopShortcut(shortcutName);
+            if (shortcutExists)
+            {
+                MessageBox.Show("Installed a shortcut to the Sales Quote Tool (SQT) on your desktop. You can now access SQT quickly from the desktop.", "Sales Quote Tool (SQT)");
+            }
+            //Console.WriteLine(" Done.");
         }
 
         static void ThisWorkbook_BeforeSave(bool SaveAsUI, ref bool Cancel)
@@ -92,16 +103,16 @@ namespace SQT_Launcher
                 if (File.Exists(path))
                 {
                     File.Delete(path);
-                    //Console.WriteLine("Deleted " + path);
+                    ////Console.WriteLine("Deleted " + path);
                 }
                 else
                 {
-                    //Console.WriteLine(path + " does not exist.");
+                    ////Console.WriteLine(path + " does not exist.");
                 }
             }
             catch (Exception e)
             {
-                //Console.WriteLine(e);
+                ////Console.WriteLine(e);
             }
         }
         static bool IsFileLocked(FileInfo file)
@@ -141,10 +152,23 @@ namespace SQT_Launcher
                     Thread.Sleep(threadTimer);
                 }
             }
-            //Console.WriteLine("\b");
+            ////Console.WriteLine("\b");
             //}
-            //Console.WriteLine(" Done.");
+            ////Console.WriteLine(" Done.");
+        }
+        static void AddDesktopShortcut(string linkName)
+        {
+            string deskDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+
+            using (StreamWriter writer = new StreamWriter(deskDir + "\\" + linkName + ".url"))
+            {
+                string app = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                writer.WriteLine("[InternetShortcut]");
+                writer.WriteLine("URL=file:///" + app);
+                writer.WriteLine("IconIndex=0");
+                string icon = app.Replace('\\', '/');
+                writer.WriteLine("IconFile=" + icon);
+            }
         }
     }
-
 }
