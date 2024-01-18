@@ -23,17 +23,7 @@ namespace SQT_Launcher
         {
             string user = Environment.UserName;
 
-            /*
-            // LAUNCH INSTALLER
-            Process p = new Process();
-            p.StartInfo.FileName = @"""C:\Users\jliang12\Documents\2023\UMR (local)\Sales Tool\Installer\installer dev 1.vbs""";
-            p.StartInfo.Arguments = versionNumber.ToString();   
-
-            p.Start();
-            p.WaitForExit();
-            p.Close();
-            */
-
+            // updating this exe - just send out an email/link to the app manifest on the shared drive
             //Console.WriteLine("Welcome to the Sales Quote Tool (SQT). Please wait while the file is loaded.\n");
 
             //ProgressUpdate("Updating local SQT directory...", 1);
@@ -84,11 +74,11 @@ namespace SQT_Launcher
 
             //string fullPath = Process.GetCurrentProcess().MainModule.FileName;
             string deskDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            bool shortcutExists = File.Exists(deskDir + shortcutName);
+            bool shortcutExists = File.Exists(deskDir + @"\" + shortcutName + ".url");
             AddDesktopShortcut(shortcutName);
             if (!shortcutExists)
             {
-                MessageBox.Show("Installed a shortcut to the Sales Quote Tool (SQT) on your desktop. You can now access SQT quickly from the desktop.", "Sales Quote Tool (SQT)");
+                MessageBox.Show("Installed a shortcut to the Sales Quote Tool (SQT) on your desktop.", "Sales Quote Tool (SQT)");
             }
             //Console.WriteLine(" Done.");
         }

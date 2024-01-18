@@ -25,9 +25,11 @@
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>\\nas00983pn\data\acrdata\UMR\SQT\SQT-Launcher Install\</InstallUrl>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>4</ApplicationRevision>
+    <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
+    <ApplicationRevision>6</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -63,13 +65,14 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject />
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>sqt-letter-logo-design-on-black-background-sqt-creative-initials-letter-logo-concept-sqt-letter-desi.ico</ApplicationIcon>
+    <ApplicationIcon>SQT Logo.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Localhost, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -183,7 +186,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="sqt-letter-logo-design-on-black-background-sqt-creative-initials-letter-logo-concept-sqt-letter-desi.ico" />
+    <Content Include="SQT Logo.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
