@@ -85,7 +85,7 @@ namespace SQT_Launcher
             string deskDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             bool shortcutExists = File.Exists(deskDir + shortcutName);
             AddDesktopShortcut(shortcutName);
-            if (shortcutExists)
+            if (!shortcutExists)
             {
                 MessageBox.Show("Installed a shortcut to the Sales Quote Tool (SQT) on your desktop. You can now access SQT quickly from the desktop.", "Sales Quote Tool (SQT)");
             }
