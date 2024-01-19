@@ -45,6 +45,7 @@ namespace SQT_Launcher
 
             Workbook sqt = excel.Workbooks.Open(localPathSqt);
             sqt.BeforeSave += new WorkbookEvents_BeforeSaveEventHandler(ThisWorkbook_BeforeSave);
+            sqt.BeforeClose += new WorkbookEvents_BeforeCloseEventHandler(ThisWorkbook_BeforeClose);
             excel.DisplayAlerts = false;
             excel.Visible = true;
 
@@ -79,7 +80,7 @@ namespace SQT_Launcher
         }
         static void ThisWorkbook_BeforeClose(ref bool Cancel)
         {
-            Cancel = true;
+            Cancel = false;
         }
 
         static void DeleteFile(string path)
