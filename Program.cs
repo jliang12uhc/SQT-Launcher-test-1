@@ -57,6 +57,7 @@ namespace SQT_Launcher
             string shortcutPath = deskDir + @"\" + shortcutName + ".url";
             bool shortcutExists = File.Exists(shortcutPath);
             AddDesktopShortcut(shortcutName);
+            /*
             if (!shortcutExists)
             {
                 DialogResult result = MessageBox.Show("Would you like to install a shortcut to the Sales Quote Tool (SQT) on your desktop?", "Sales Quote Tool (SQT)", MessageBoxButtons.YesNo);
@@ -69,6 +70,7 @@ namespace SQT_Launcher
                     MessageBox.Show("Successfully created a desktop shortcut to SQT.", "Sales Quote Tool (SQT)");
                 }
             }
+            */
         }
 
         static void ThisWorkbook_BeforeSave(bool SaveAsUI, ref bool Cancel)
