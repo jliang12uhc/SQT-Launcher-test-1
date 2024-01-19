@@ -77,6 +77,11 @@ namespace SQT_Launcher
         {
             Cancel = true;
         }
+        static void ThisWorkbook_BeforeClose(ref bool Cancel)
+        {
+            Cancel = true;
+        }
+
         static void DeleteFile(string path)
         {
             try
